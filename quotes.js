@@ -130,5 +130,19 @@ const QUOTES = {
     ['Otro día en el que demostraste de qué estás hecha.', "Another day you showed what you're made of."]
   ],
   // Personal notes, shown now and then. Filled in once approved.
-  fromE: { in: [], out: [] }
+  fromE: {
+    in: [
+      ['Te quiero. Ve a por ello.', 'I love you. Go get it.'],
+      ['Ánimo, guapa. Tú puedes con todo.', 'Go on, gorgeous. You can handle anything.'],
+      ['Estoy orgulloso de ti, siempre.', "I'm proud of you, always."],
+      ['Eres la mejor de toda la tienda. Y de mi vida.', "You're the best in the whole store. And in my life."]
+    ],
+    out: [
+      ['Vuelve pronto a casa, te espero.', "Come home soon, I'm waiting."],
+      ['Pase lo que pase hoy, en casa te espera un abrazo.', 'Whatever happened today, a hug is waiting at home.'],
+      ['Gracias por todo lo que haces por nosotros.', 'Thank you for everything you do for us.'],
+      ['Qué suerte tengo de tenerte.', 'How lucky I am to have you.'],
+      ['Me encanta verte crecer.', 'I love watching you grow.']
+    ]
+  }
 };
