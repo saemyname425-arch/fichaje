@@ -3,16 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#3c3489">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Fichaje</title>
 <style>
-:root{--bg:#f4f6f5;--card:#fff;--text:#14201c;--muted:#5f6f69;--line:#e2e8e5;--teal:#0f766e;--teal-soft:#d9f2ec;--red:#c2410c;--red-soft:#fde8dc;--amber:#b45309}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1412;--card:#16201d;--text:#e8efec;--muted:#93a39d;--line:#24302c;--teal:#2dd4bf;--teal-soft:#123a34;--red:#fb923c;--red-soft:#3b2216;--amber:#fbbf24}}
+:root{--bg:#f6f4fe;--card:#fff;--text:#26215c;--muted:#6b64a8;--line:#e4e0fa;--teal:#5b4bd6;--teal-soft:#eeedfe;--red:#c2367e;--red-soft:#fbe6f0;--amber:#c2367e;--deep:#3c3489;--lav:#cecbf6}
+@media (prefers-color-scheme:dark){:root{--bg:#14112b;--card:#1f1a44;--text:#efedff;--muted:#a9a3e0;--line:#2e2860;--teal:#8f84f0;--teal-soft:#2a2461;--red:#ec7fb4;--red-soft:#3d1f35;--amber:#ec7fb4;--deep:#2a2461;--lav:#4a4294}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.punch{box-shadow:0 6px 18px rgba(91,75,214,.28)}
+.punch.out{box-shadow:0 6px 18px rgba(194,54,126,.25)}
+.status{background:var(--card)}
+.quote-ov{position:fixed;inset:0;background:rgba(20,16,50,.55);display:none;align-items:center;justify-content:center;padding:24px;z-index:30}
+.quote-ov.show{display:flex;animation:fade .25s ease}
+.quote-card{width:100%;max-width:420px;background:var(--deep);color:#fff;border-radius:24px;padding:26px 24px 22px;animation:rise .35s cubic-bezier(.2,.9,.3,1.2)}
+.quote-card.out{background:var(--card);color:var(--text);border:1px solid var(--lav)}
+.q-kicker{font-size:13px;font-weight:700;letter-spacing:.4px;color:var(--lav);margin-bottom:10px}
+.quote-card.out .q-kicker{color:var(--teal)}
+.q-stats{display:flex;gap:10px;margin-bottom:16px}
+.q-stat{flex:1;background:var(--teal-soft);border-radius:14px;padding:10px;text-align:center}
+.q-stat .k{font-size:12px;color:var(--muted)}
+.q-stat .v{font-size:20px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.q-text{font-family:Georgia,"Times New Roman",serif;font-size:22px;line-height:1.4}
+.q-from{margin-top:12px;font-size:15px;font-weight:700;color:var(--lav)}
+.quote-card.out .q-from{color:var(--red)}
+.q-close{margin-top:18px;font-size:13px;opacity:.7}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
 body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 .wrap{max-width:520px;margin:0 auto;padding:16px 16px 40px}
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -26,7 +48,7 @@ header h1{font-size:22px;margin:0;font-weight:700}
 .status{text-align:center}
 .status .label{color:var(--muted);font-size:15px}
 .timer{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;margin:6px 0 16px;letter-spacing:1px}
-.punch{width:100%;border:none;border-radius:16px;padding:22px;font-size:22px;font-weight:700;color:#fff;background:var(--teal);cursor:pointer}
+.punch{width:100%;border:none;border-radius:20px;padding:24px;font-size:22px;font-weight:800;color:#fff;background:var(--teal);cursor:pointer}
 .punch.out{background:var(--red)}
 .punch:active{transform:scale(.98)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
@@ -67,7 +89,7 @@ input,select{width:100%;font-size:17px;padding:12px;border-radius:12px;border:1p
 <body>
 <div class="wrap">
   <header>
-    <h1 data-t="appName">Fichaje</h1>
+    <h1 style="display:flex;align-items:center;gap:10px"><img src="icon-192.png" alt="" width="34" height="34" style="border-radius:9px"><span data-t="appName">Fichaje</span></h1>
     <div class="hbtns">
       <span id="syncPill" class="pill"></span>
       <button class="icon-btn" id="settingsBtn" aria-label="Settings">&#9881;</button>
@@ -138,8 +160,19 @@ input,select{width:100%;font-size:17px;padding:12px;border-radius:12px;border:1p
   </div>
 </div>
 
+<div class="quote-ov" id="quoteOv">
+  <div class="quote-card" id="quoteCard">
+    <div class="q-kicker" id="qKicker"></div>
+    <div class="q-stats" id="qStats"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-from" id="qFrom"></div>
+    <div class="q-close" id="qClose"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
+<script src="quotes.js"></script>
 <script>
 const T = {
   es: {appName:'Fichaje', off:'Fuera de turno', working:'Trabajando desde', clockIn:'Fichar entrada', clockOut:'Fichar salida',
@@ -151,6 +184,7 @@ const T = {
     empty:'Aún no hay fichajes', open:'en curso', errTime:'Pon fecha y hora de entrada', errOpen:'Ya hay un turno abierto. Ponle hora de salida.',
     errLong:'El turno dura más de 16 horas. Revisa las horas.', lastSync:'Última sincronización:', never:'nunca', restored:'Datos restaurados',
     restoreFail:'No se pudo restaurar', saved:'Guardado', inDone:'Entrada fichada', outDone:'Salida fichada', setupDone:'Configuración guardada',
+    k_lift:'Para empezar', k_tip:'Recordatorio rápido', k_out:'Bien hecho', k_e:'Un mensaje para ti', thisShift:'Este turno', tapClose:'Toca para cerrar',
     days:['domingo','lunes','martes','miércoles','jueves','viernes','sábado']},
   en: {appName:'Fichaje', off:'Off the clock', working:'Working since', clockIn:'Clock in', clockOut:'Clock out',
     today:'Today', week:'Week', month:'Month', history:'History', add:'+ Add', addTitle:'Add shift', editTitle:'Edit shift',
@@ -161,6 +195,7 @@ const T = {
     empty:'No shifts yet', open:'in progress', errTime:'Enter a date and clock-in time', errOpen:'A shift is already open. Give it a clock-out time.',
     errLong:'Shift is longer than 16 hours. Check the times.', lastSync:'Last sync:', never:'never', restored:'Data restored',
     restoreFail:'Could not restore', saved:'Saved', inDone:'Clocked in', outDone:'Clocked out', setupDone:'Setup saved',
+    k_lift:'To start', k_tip:'Quick refresher', k_out:'Well done', k_e:'A note for you', thisShift:'This shift', tapClose:'Tap to close',
     days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']}
 };
 
@@ -261,11 +296,52 @@ $('punchBtn').addEventListener('click', () => {
   if(Date.now() - lastPunch < 2000) return;
   lastPunch = Date.now();
   const o = openShift();
-  if(o){ o.end = Date.now(); toast(t('outDone')); }
-  else { state.shifts.push({id: uid(), start: Date.now(), end: null, note: ''}); toast(t('inDone')); }
+  if(o){ o.end = Date.now(); }
+  else { state.shifts.push({id: uid(), start: Date.now(), end: null, note: ''}); }
   if(navigator.vibrate) navigator.vibrate(40);
   changed();
+  showQuote(o ? 'out' : 'in', o);
 });
+
+// Draws from a shuffled deck so nothing repeats until every quote has shown.
+function draw(key, list){
+  if(!list || !list.length) return null;
+  state.decks = state.decks || {};
+  let deck = (state.decks[key] || []).filter(i => i < list.length);
+  if(!deck.length){
+    deck = list.map((_, i) => i);
+    for(let i = deck.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  }
+  const idx = deck.pop();
+  state.decks[key] = deck; save();
+  return list[idx];
+}
+
+function showQuote(kind, shift){
+  if(typeof QUOTES === 'undefined') return;
+  const li = state.lang === 'en' ? 1 : 0;
+  const personal = QUOTES.fromE && QUOTES.fromE[kind] && QUOTES.fromE[kind].length && Math.random() < 1/6;
+  let q, kicker;
+  if(personal){ q = draw('e_' + kind, QUOTES.fromE[kind]); kicker = t('k_e'); }
+  else if(kind === 'in'){ const tip = Math.random() < 0.5; q = draw(tip ? 'tip' : 'lift', tip ? QUOTES.tip : QUOTES.lift); kicker = t(tip ? 'k_tip' : 'k_lift'); }
+  else { q = draw('out', QUOTES.out); kicker = t('k_out'); }
+  if(!q) return;
+  const card = $('quoteCard');
+  card.classList.toggle('out', kind === 'out');
+  $('qKicker').textContent = kicker;
+  $('qText').textContent = q[li];
+  $('qFrom').textContent = personal ? 'E.' : '';
+  $('qClose').textContent = t('tapClose');
+  const stats = $('qStats');
+  if(kind === 'out' && shift){
+    const now = Date.now();
+    stats.innerHTML = '<div class="q-stat"><div class="k">' + t('thisShift') + '</div><div class="v">' + fmtDur(shift.end - shift.start) + '</div></div>'
+      + '<div class="q-stat"><div class="k">' + t('week') + '</div><div class="v">' + fmtDur(sumFrom(startOfWeek(now))) + '</div></div>';
+    stats.style.display = '';
+  } else { stats.innerHTML = ''; stats.style.display = 'none'; }
+  $('quoteOv').classList.add('show');
+}
+$('quoteOv').addEventListener('click', () => $('quoteOv').classList.remove('show'));
 
 $('history').addEventListener('click', e => { const el = e.target.closest('.shift'); if(el) openEdit(el.dataset.id); });
 $('addBtn').addEventListener('click', () => openEdit(null));
