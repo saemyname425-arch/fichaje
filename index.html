@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Fichaje</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--text:#14201c;--muted:#5f6f69;--line:#e2e8e5;--teal:#0f766e;--teal-soft:#d9f2ec;--red:#c2410c;--red-soft:#fde8dc;--amber:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1412;--card:#16201d;--text:#e8efec;--muted:#93a39d;--line:#24302c;--teal:#2dd4bf;--teal-soft:#123a34;--red:#fb923c;--red-soft:#3b2216;--amber:#fbbf24}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+header h1{font-size:22px;margin:0;font-weight:700}
+.hbtns{display:flex;gap:8px;align-items:center}
+.pill{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--line);color:var(--muted)}
+.pill.ok{background:var(--teal-soft);color:var(--teal)}
+.pill.err{background:var(--red-soft);color:var(--red)}
+.icon-btn{border:none;background:var(--card);color:var(--text);width:40px;height:40px;border-radius:12px;font-size:20px;cursor:pointer;border:1px solid var(--line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.status{text-align:center}
+.status .label{color:var(--muted);font-size:15px}
+.timer{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;margin:6px 0 16px;letter-spacing:1px}
+.punch{width:100%;border:none;border-radius:16px;padding:22px;font-size:22px;font-weight:700;color:#fff;background:var(--teal);cursor:pointer}
+.punch.out{background:var(--red)}
+.punch:active{transform:scale(.98)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center}
+.stat .k{font-size:13px;color:var(--muted)}
+.stat .v{font-size:20px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .m{font-size:13px;color:var(--teal);margin-top:2px;min-height:16px}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 10px}
+.sec-head h2{font-size:17px;margin:0}
+.link-btn{border:none;background:none;color:var(--teal);font-size:15px;font-weight:600;cursor:pointer;padding:6px}
+.day{margin-bottom:12px}
+.day-h{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);padding:0 4px 6px}
+.shift{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:6px;cursor:pointer;font-variant-numeric:tabular-nums}
+.shift .note{font-size:12px;color:var(--muted);margin-top:2px}
+.shift .dur{font-weight:600}
+.open-tag{color:var(--amber);font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:24px 0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.overlay.show{display:flex}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+.sheet h3{margin:0 0 14px;font-size:19px}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+input,select{width:100%;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--line);color:var(--text)}
+.btn.primary{background:var(--teal);color:#fff}
+.btn.danger{background:var(--red-soft);color:var(--red)}
+.err-msg{color:var(--red);font-size:14px;margin-top:10px;min-height:18px}
+.seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{flex:1;border:none;background:none;padding:10px;border-radius:9px;font-size:15px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--text);font-weight:600}
+.small{font-size:12px;color:var(--muted);margin-top:6px}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 data-t="appName">Fichaje</h1>
+    <div class="hbtns">
+      <span id="syncPill" class="pill"></span>
+      <button class="icon-btn" id="settingsBtn" aria-label="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <section class="card status">
+    <div class="label" id="statusLabel"></div>
+    <div class="timer" id="timer">00:00:00</div>
+    <button class="punch" id="punchBtn"></button>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><div class="k" data-t="today"></div><div class="v" id="sToday">0h 0m</div><div class="m" id="mToday"></div></div>
+    <div class="stat"><div class="k" data-t="week"></div><div class="v" id="sWeek">0h 0m</div><div class="m" id="mWeek"></div></div>
+    <div class="stat"><div class="k" data-t="month"></div><div class="v" id="sMonth">0h 0m</div><div class="m" id="mMonth"></div></div>
+  </section>
+
+  <div class="sec-head">
+    <h2 data-t="history"></h2>
+    <button class="link-btn" id="addBtn" data-t="add"></button>
+  </div>
+  <div id="history"></div>
+</div>
+
+<div class="overlay" id="editOv">
+  <div class="sheet">
+    <h3 id="editTitle"></h3>
+    <label data-t="date"></label>
+    <input type="date" id="fDate">
+    <div class="row2">
+      <div><label data-t="in"></label><input type="time" id="fIn"></div>
+      <div><label data-t="out"></label><input type="time" id="fOut"></div>
+    </div>
+    <label data-t="note"></label>
+    <input type="text" id="fNote" maxlength="120">
+    <div class="err-msg" id="fErr"></div>
+    <div class="actions">
+      <button class="btn danger" id="delBtn" data-t="del"></button>
+      <button class="btn" id="cancelBtn" data-t="cancel"></button>
+      <button class="btn primary" id="saveBtn" data-t="save"></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="setOv">
+  <div class="sheet">
+    <h3 data-t="settings"></h3>
+    <label data-t="lang"></label>
+    <div class="seg"><button data-lang="es">Español</button><button data-lang="en">English</button></div>
+    <label data-t="rate"></label>
+    <input type="number" id="sRate" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+    <label data-t="syncUrl"></label>
+    <input type="url" id="sUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <label data-t="token"></label>
+    <input type="text" id="sToken" autocomplete="off">
+    <div class="small" id="lastSync"></div>
+    <div class="actions">
+      <button class="btn" id="syncNowBtn" data-t="syncNow"></button>
+      <button class="btn" id="exportBtn" data-t="export"></button>
+    </div>
+    <div class="actions">
+      <button class="btn" id="restoreBtn" data-t="restore"></button>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="setCloseBtn" data-t="close"></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const T = {
+  es: {appName:'Fichaje', off:'Fuera de turno', working:'Trabajando desde', clockIn:'Fichar entrada', clockOut:'Fichar salida',
+    today:'Hoy', week:'Semana', month:'Mes', history:'Historial', add:'+ Añadir', addTitle:'Añadir fichaje', editTitle:'Editar fichaje',
+    date:'Fecha', in:'Entrada', out:'Salida', note:'Nota (opcional)', save:'Guardar', cancel:'Cancelar', del:'Eliminar', delConfirm:'¿Seguro? Toca otra vez',
+    settings:'Ajustes', lang:'Idioma', rate:'Tarifa por hora (€, bruto)', syncUrl:'Enlace de Google Sheet', token:'Clave secreta',
+    syncNow:'Sincronizar', export:'Exportar CSV', restore:'Restaurar desde Sheet', restoreConfirm:'Reemplaza los datos del móvil. Toca otra vez',
+    close:'Cerrar', s_off:'Sin Sheet', s_ok:'Sincronizado', s_pending:'Pendiente', s_syncing:'Sincronizando', s_error:'Error de sync',
+    empty:'Aún no hay fichajes', open:'en curso', errTime:'Pon fecha y hora de entrada', errOpen:'Ya hay un turno abierto. Ponle hora de salida.',
+    errLong:'El turno dura más de 16 horas. Revisa las horas.', lastSync:'Última sincronización:', never:'nunca', restored:'Datos restaurados',
+    restoreFail:'No se pudo restaurar', saved:'Guardado', inDone:'Entrada fichada', outDone:'Salida fichada', setupDone:'Configuración guardada',
+    days:['domingo','lunes','martes','miércoles','jueves','viernes','sábado']},
+  en: {appName:'Fichaje', off:'Off the clock', working:'Working since', clockIn:'Clock in', clockOut:'Clock out',
+    today:'Today', week:'Week', month:'Month', history:'History', add:'+ Add', addTitle:'Add shift', editTitle:'Edit shift',
+    date:'Date', in:'In', out:'Out', note:'Note (optional)', save:'Save', cancel:'Cancel', del:'Delete', delConfirm:'Sure? Tap again',
+    settings:'Settings', lang:'Language', rate:'Hourly rate (€, gross)', syncUrl:'Google Sheet link', token:'Secret key',
+    syncNow:'Sync now', export:'Export CSV', restore:'Restore from Sheet', restoreConfirm:'Replaces phone data. Tap again',
+    close:'Close', s_off:'No Sheet', s_ok:'Synced', s_pending:'Pending', s_syncing:'Syncing', s_error:'Sync error',
+    empty:'No shifts yet', open:'in progress', errTime:'Enter a date and clock-in time', errOpen:'A shift is already open. Give it a clock-out time.',
+    errLong:'Shift is longer than 16 hours. Check the times.', lastSync:'Last sync:', never:'never', restored:'Data restored',
+    restoreFail:'Could not restore', saved:'Saved', inDone:'Clocked in', outDone:'Clocked out', setupDone:'Setup saved',
+    days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']}
+};
+
+const KEY = 'fichaje.v1';
+const $ = id => document.getElementById(id);
+let state = load();
+let syncStatus = 'off';
+let editingId = null;
+let armed = {};
+
+function defaults(){ return {lang:'es', rate:0, syncUrl:'', token:'', shifts:[], dirty:false, lastSync:null}; }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return Object.assign(defaults(), s); }catch(e){} return defaults(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function t(k){ return (T[state.lang] || T.es)[k]; }
+function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function locale(){ return state.lang === 'es' ? 'es-ES' : 'en-GB'; }
+
+function openShift(){ return state.shifts.find(s => !s.end); }
+function sorted(){ return state.shifts.slice().sort((a,b) => b.start - a.start); }
+
+function startOfDay(d){ const x = new Date(d); x.setHours(0,0,0,0); return x.getTime(); }
+function startOfWeek(d){ const x = new Date(startOfDay(d)); const wd = (x.getDay() + 6) % 7; x.setDate(x.getDate() - wd); return x.getTime(); }
+function startOfMonth(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(1); return x.getTime(); }
+function sumFrom(from){ const now = Date.now(); return state.shifts.filter(s => s.start >= from).reduce((a,s) => a + ((s.end || now) - s.start), 0); }
+
+function fmtDur(ms){ const m = Math.floor(ms / 60000); return Math.floor(m / 60) + 'h ' + (m % 60) + 'm'; }
+function fmtClock(ms){ const s = Math.floor(ms / 1000); return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60); }
+function fmtTime(ts){ const d = new Date(ts); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function money(ms){ if(!state.rate) return ''; return new Intl.NumberFormat(locale(), {style:'currency', currency:'EUR'}).format(ms / 3600000 * state.rate); }
+function dayKey(ts){ const d = new Date(ts); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dayLabel(key){
+  const [y,m,d] = key.split('-').map(Number); const dt = new Date(y, m - 1, d);
+  if(key === dayKey(Date.now())) return t('today');
+  const name = t('days')[dt.getDay()];
+  return name.charAt(0).toUpperCase() + name.slice(1) + ', ' + dt.toLocaleDateString(locale(), {day:'numeric', month:'short'});
+}
+
+function toast(msg){ const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 1800); }
+
+function applyLang(){
+  document.documentElement.lang = state.lang;
+  document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+  document.querySelectorAll('[data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === state.lang));
+  render();
+}
+
+function renderLive(){
+  const o = openShift();
+  const now = Date.now();
+  $('statusLabel').textContent = o ? t('working') + ' ' + fmtTime(o.start) : t('off');
+  $('timer').textContent = fmtClock(o ? now - o.start : 0);
+  const b = $('punchBtn');
+  b.textContent = o ? t('clockOut') : t('clockIn');
+  b.classList.toggle('out', !!o);
+  const d = sumFrom(startOfDay(now)), w = sumFrom(startOfWeek(now)), m = sumFrom(startOfMonth(now));
+  $('sToday').textContent = fmtDur(d); $('mToday').textContent = money(d);
+  $('sWeek').textContent = fmtDur(w); $('mWeek').textContent = money(w);
+  $('sMonth').textContent = fmtDur(m); $('mMonth').textContent = money(m);
+}
+
+function renderHistory(){
+  const h = $('history');
+  const list = sorted();
+  if(!list.length){ h.innerHTML = '<div class="empty">' + t('empty') + '</div>'; return; }
+  const groups = new Map();
+  const cutoff = Date.now() - 62 * 86400000;
+  list.filter(s => s.start >= cutoff).forEach(s => { const k = dayKey(s.start); if(!groups.has(k)) groups.set(k, []); groups.get(k).push(s); });
+  const now = Date.now();
+  let html = '';
+  groups.forEach((arr, k) => {
+    const total = arr.reduce((a,s) => a + ((s.end || now) - s.start), 0);
+    html += '<div class="day"><div class="day-h"><span>' + dayLabel(k) + '</span><span>' + fmtDur(total) + (state.rate ? ' · ' + money(total) : '') + '</span></div>';
+    arr.slice().sort((a,b) => a.start - b.start).forEach(s => {
+      const right = s.end ? fmtDur(s.end - s.start) : '<span class="open-tag">' + t('open') + '</span>';
+      const note = s.note ? '<div class="note">' + esc(s.note) + '</div>' : '';
+      html += '<div class="shift" data-id="' + s.id + '"><div><div>' + fmtTime(s.start) + ' → ' + (s.end ? fmtTime(s.end) : '...') + '</div>' + note + '</div><div class="dur">' + right + '</div></div>';
+    });
+    html += '</div>';
+  });
+  h.innerHTML = html;
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderSync(){
+  const p = $('syncPill');
+  p.textContent = t('s_' + syncStatus);
+  p.className = 'pill' + (syncStatus === 'ok' ? ' ok' : syncStatus === 'error' ? ' err' : '');
+}
+
+function render(){ renderLive(); renderHistory(); renderSync(); }
+
+function changed(){ state.dirty = true; save(); render(); sync(); }
+
+let lastPunch = 0;
+$('punchBtn').addEventListener('click', () => {
+  if(Date.now() - lastPunch < 2000) return;
+  lastPunch = Date.now();
+  const o = openShift();
+  if(o){ o.end = Date.now(); toast(t('outDone')); }
+  else { state.shifts.push({id: uid(), start: Date.now(), end: null, note: ''}); toast(t('inDone')); }
+  if(navigator.vibrate) navigator.vibrate(40);
+  changed();
+});
+
+$('history').addEventListener('click', e => { const el = e.target.closest('.shift'); if(el) openEdit(el.dataset.id); });
+$('addBtn').addEventListener('click', () => openEdit(null));
+
+function openEdit(id){
+  editingId = id;
+  armed = {};
+  $('fErr').textContent = '';
+  $('delBtn').textContent = t('del');
+  $('delBtn').style.display = id ? '' : 'none';
+  $('editTitle').textContent = id ? t('editTitle') : t('addTitle');
+  const s = id ? state.shifts.find(x => x.id === id) : null;
+  const base = s ? new Date(s.start) : new Date();
+  $('fDate').value = dayKey(base.getTime());
+  $('fIn').value = s ? fmtTime(s.start) : '';
+  $('fOut').value = s && s.end ? fmtTime(s.end) : '';
+  $('fNote').value = s ? (s.note || '') : '';
+  $('editOv').classList.add('show');
+}
+function closeEdit(){ $('editOv').classList.remove('show'); editingId = null; }
+
+$('cancelBtn').addEventListener('click', closeEdit);
+$('editOv').addEventListener('click', e => { if(e.target.id === 'editOv') closeEdit(); });
+
+$('saveBtn').addEventListener('click', () => {
+  const date = $('fDate').value, tin = $('fIn').value, tout = $('fOut').value;
+  if(!date || !tin){ $('fErr').textContent = t('errTime'); return; }
+  const [y,m,d] = date.split('-').map(Number);
+  const [ih,im] = tin.split(':').map(Number);
+  const start = new Date(y, m - 1, d, ih, im).getTime();
+  let end = null;
+  if(tout){
+    const [oh,om] = tout.split(':').map(Number);
+    end = new Date(y, m - 1, d, oh, om).getTime();
+    if(end <= start) end += 86400000;
+    if(end - start > 16 * 3600000){ $('fErr').textContent = t('errLong'); return; }
+  } else {
+    const o = openShift();
+    if(o && o.id !== editingId){ $('fErr').textContent = t('errOpen'); return; }
+  }
+  const note = $('fNote').value.trim();
+  if(editingId){
+    const s = state.shifts.find(x => x.id === editingId);
+    s.start = start; s.end = end; s.note = note;
+  } else {
+    state.shifts.push({id: uid(), start, end, note});
+  }
+  closeEdit(); toast(t('saved')); changed();
+});
+
+$('delBtn').addEventListener('click', () => {
+  if(!armed.del){ armed.del = true; $('delBtn').textContent = t('delConfirm'); return; }
+  state.shifts = state.shifts.filter(x => x.id !== editingId);
+  closeEdit(); changed();
+});
+
+$('settingsBtn').addEventListener('click', () => {
+  armed = {};
+  $('restoreBtn').textContent = t('restore');
+  $('sRate').value = state.rate || '';
+  $('sUrl').value = state.syncUrl;
+  $('sToken').value = state.token;
+  $('lastSync').textContent = t('lastSync') + ' ' + (state.lastSync ? new Date(state.lastSync).toLocaleString(locale()) : t('never'));
+  $('setOv').classList.add('show');
+});
+function closeSettings(){
+  state.rate = parseFloat($('sRate').value) || 0;
+  const url = $('sUrl').value.trim(), tok = $('sToken').value.trim();
+  const syncChanged = url !== state.syncUrl || tok !== state.token;
+  state.syncUrl = url; state.token = tok;
+  save(); $('setOv').classList.remove('show'); render();
+  if(syncChanged){ state.dirty = true; save(); sync(); }
+}
+$('setCloseBtn').addEventListener('click', closeSettings);
+$('setOv').addEventListener('click', e => { if(e.target.id === 'setOv') closeSettings(); });
+document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => { state.lang = b.dataset.lang; save(); applyLang(); }));
+
+$('syncNowBtn').addEventListener('click', () => { state.rate = parseFloat($('sRate').value) || 0; state.syncUrl = $('sUrl').value.trim(); state.token = $('sToken').value.trim(); state.dirty = true; save(); sync(true); });
+
+$('exportBtn').addEventListener('click', () => {
+  const rows = [['date','in','out','hours','note']];
+  state.shifts.slice().sort((a,b) => a.start - b.start).forEach(s => {
+    rows.push([dayKey(s.start), fmtTime(s.start), s.end ? fmtTime(s.end) : '', s.end ? ((s.end - s.start) / 3600000).toFixed(2) : '', s.note || '']);
+  });
+  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'fichaje-' + dayKey(Date.now()) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+$('restoreBtn').addEventListener('click', async () => {
+  if(!armed.restore){ armed.restore = true; $('restoreBtn').textContent = t('restoreConfirm'); return; }
+  armed.restore = false; $('restoreBtn').textContent = t('restore');
+  const ok = await pull();
+  toast(ok ? t('restored') : t('restoreFail'));
+});
+
+async function pull(){
+  if(!state.syncUrl) return false;
+  try{
+    const url = state.syncUrl + (state.syncUrl.includes('?') ? '&' : '?') + 'action=load&token=' + encodeURIComponent(state.token);
+    const r = await fetch(url);
+    const j = await r.json();
+    if(!j.ok || !Array.isArray(j.shifts)) return false;
+    state.shifts = j.shifts; state.dirty = false; state.lastSync = Date.now();
+    save(); syncStatus = 'ok'; render(); return true;
+  }catch(e){ return false; }
+}
+
+let syncing = false;
+async function sync(force){
+  if(!state.syncUrl){ syncStatus = 'off'; renderSync(); return; }
+  if(!state.dirty && !force){ syncStatus = 'ok'; renderSync(); return; }
+  if(!navigator.onLine){ syncStatus = 'pending'; renderSync(); return; }
+  if(syncing) return;
+  syncing = true; syncStatus = 'syncing'; renderSync();
+  try{
+    const r = await fetch(state.syncUrl, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'save', token: state.token, shifts: state.shifts})});
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'sync failed');
+    state.dirty = false; state.lastSync = Date.now(); save(); syncStatus = 'ok';
+  }catch(e){ syncStatus = state.dirty ? 'error' : 'ok'; }
+  syncing = false; renderSync();
+}
+
+function readSetupLink(){
+  const p = new URLSearchParams(location.search);
+  if(!p.has('sync') && !p.has('rate') && !p.has('lang')) return false;
+  if(p.has('sync')) state.syncUrl = p.get('sync');
+  if(p.has('token')) state.token = p.get('token');
+  if(p.has('rate')) state.rate = parseFloat(p.get('rate')) || 0;
+  if(p.has('lang') && T[p.get('lang')]) state.lang = p.get('lang');
+  save();
+  history.replaceState(null, '', location.pathname);
+  return true;
+}
+
+window.addEventListener('online', () => sync());
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ render(); sync(); } });
+setInterval(renderLive, 1000);
+setInterval(() => { if(state.dirty) sync(); }, 60000);
+
+(async function init(){
+  const fromLink = readSetupLink();
+  applyLang();
+  if(fromLink) toast(t('setupDone'));
+  if(state.syncUrl && !state.shifts.length){ await pull(); }
+  sync();
+  if('serviceWorker' in navigator && location.protocol === 'https:'){
+    try{ navigator.serviceWorker.register('sw.js'); }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
