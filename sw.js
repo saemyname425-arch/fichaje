@@ -1,4 +1,4 @@
-const CACHE = 'fichaje-v4';
+const CACHE = 'fichaje-v5';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './quotes.js'];
 
 self.addEventListener('install', e => {
